@@ -1,0 +1,11 @@
+Model Information:
+* title:	Non-lethal Self Defence Weapon
+* source:	https://sketchfab.com/3d-models/non-lethal-self-defence-weapon-ea3e8ea1014d4901925fcca92a6f8faf
+* author:	CaptainMESH (https://sketchfab.com/captainmesh)
+
+Model License:
+* license type:	CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions must have the same license.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Non-lethal Self Defence Weapon" (https://sketchfab.com/3d-models/non-lethal-self-defence-weapon-ea3e8ea1014d4901925fcca92a6f8faf) by CaptainMESH (https://sketchfab.com/captainmesh) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
