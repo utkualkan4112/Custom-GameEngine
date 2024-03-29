@@ -26,7 +26,8 @@ Texture::Texture(std::string name)
 // initialize with image path and type
 Texture::Texture(std::string dir, std::string path, aiTextureType type)
 	: dir(dir), path(path), type(type) {
-	generate();
+	//generate();
+	glCreateTextures(GL_TEXTURE_2D, 1, &id);
 }
 
 // generate texture id
@@ -45,32 +46,33 @@ void Texture::load(bool flip)
 
 	unsigned char* data = stbi_load((dir + "/" + path).c_str(), &width, &height, &nChannels, 0);
 	GLenum colorMode = GL_RGB;
+	GLenum interMode = GL_RGB8;
 	switch (nChannels) {
 	case 1:
 		colorMode = GL_RED;
+		interMode = GL_R8;
 		break;
 	case 4:
 		colorMode = GL_RGBA;
+		interMode = GL_RGBA8;
 		break;
 	}
 
 	if (data) {
-		glBindTexture(GL_TEXTURE_2D, id);
-		glTexImage2D(GL_TEXTURE_2D, 0, colorMode, width, height, 0, colorMode, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameterf(id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTextureParameterf(id, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureStorage2D(id, 1, interMode, width, height);
+		glTextureSubImage2D(id, 0, 0, 0, width, height, colorMode, GL_UNSIGNED_BYTE, data);
+		glGenerateTextureMipmap(id);
 	}
 	else {
 		std::cout << "image not loaded at " << path << std::endl;
 	}
 
 	stbi_image_free(data);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::allocate(GLenum format, GLuint width, GLuint height, GLenum type)

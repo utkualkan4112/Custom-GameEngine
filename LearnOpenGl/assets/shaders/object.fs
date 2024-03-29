@@ -23,7 +23,8 @@ in VS_OUT {
 } fs_in;
 
 uniform Material material;
-uniform bool noTex;
+uniform bool noDiffuse;
+uniform bool noSpec;
 uniform bool noNormalMap;
 uniform bool skipNormalMap;
 
@@ -63,12 +64,15 @@ void main(){
 	vec4 diffMap;
 	vec4 specMap;
 
-	if(noTex){
-		diffMap = material.diffuse;
-		specMap = material.specular;
-	}
-	else{
+
+	diffMap = material.diffuse;
+	specMap = material.specular;
+
+	if(!noDiffuse){
 		diffMap = texture(diffuse0, fs_in.TexCoord);
+	}
+	
+	if(!noSpec){
 		specMap = texture(specular0, fs_in.TexCoord);
 	}
 

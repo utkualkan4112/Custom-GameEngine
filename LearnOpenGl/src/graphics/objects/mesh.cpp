@@ -184,7 +184,8 @@ void Mesh::setupMaterial(Material mat)
 void Mesh::render(Shader shader, unsigned int noInstances)
 {
 	shader.setBool("noNormalMap", true);
-	shader.setBool("noTex", true);
+	shader.setBool("noDiffuse", true);
+	shader.setBool("noSpec", true);
 
 	// materials
 	shader.set4Float("material.diffuse", diffuse);
@@ -199,15 +200,13 @@ void Mesh::render(Shader shader, unsigned int noInstances)
 
 
 	for (unsigned int i = 0; i < textures.size(); i++) {
-		// activete texture slot
-		glActiveTexture(GL_TEXTURE1 + i);
 
 		// retrive tex info
 		std::string name;
 		switch (textures[i].type) {
 		case aiTextureType_DIFFUSE:
 			name = "diffuse" + std::to_string(diffuseIdx++);
-			shader.setBool("noTex", false);
+			shader.setBool("noDiffuse", false);
 			break;
 		case aiTextureType_NORMALS:
 			name = "normal" + std::to_string(normalIdx++);
@@ -215,7 +214,7 @@ void Mesh::render(Shader shader, unsigned int noInstances)
 			break;
 		case aiTextureType_SPECULAR:
 			name = "specular" + std::to_string(specularIdx++);
-			shader.setBool("noTex", false);
+			shader.setBool("noSpec", false);
 			break;
 		default:
 			name = textures[i].name;
@@ -223,10 +222,11 @@ void Mesh::render(Shader shader, unsigned int noInstances)
 
 		}
 
+		// bind texture
+		glBindTextureUnit(i + 1, textures[i].id);
 		// shader
 		shader.setInt(name, i + 1);
-		// bind texture
-		textures[i].bind();
+		
 		
 	}
 

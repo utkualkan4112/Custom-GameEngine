@@ -85,10 +85,8 @@ void mouseButtonChanged(GLFWwindow* window, int button, int action, int mods);
 void scrollChanged(GLFWwindow* window, double dx, double dy);
 
 int main() {
-    std::cout << "Hello, OpenGL!" << std::endl;
-
     // construct scene
-    scene = Scene(3, 3, "OpenGL Tutorial", 1200, 720);
+    scene = Scene(4, 6, "OpenGL Tutorial", 1200, 720);
     // test if GLFW successfully started and created window
     if (!scene.init()) {
         std::cout << "Could not open window" << std::endl;
