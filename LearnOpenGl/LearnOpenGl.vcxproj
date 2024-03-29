@@ -197,6 +197,7 @@
     <ClInclude Include="src\algorithms\ray.h" />
     <ClInclude Include="src\algorithms\states.hpp" />
     <ClInclude Include="src\algorithms\trie.hpp" />
+    <ClInclude Include="src\graphics\models\house.hpp" />
     <ClInclude Include="src\graphics\rendering\cubemap.h" />
     <ClInclude Include="src\graphics\memory\framememory.hpp" />
     <ClInclude Include="src\graphics\models\brickwall.hpp" />

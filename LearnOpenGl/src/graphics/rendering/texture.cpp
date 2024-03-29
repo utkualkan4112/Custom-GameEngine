@@ -33,6 +33,7 @@ Texture::Texture(std::string dir, std::string path, aiTextureType type)
 void Texture::generate()
 {
 	glGenTextures(1, &id);
+	//glCreateTextures(GL_TEXTURE_2D, 1, &id);
 }
 
 // load texture from path
@@ -74,6 +75,8 @@ void Texture::load(bool flip)
 
 void Texture::allocate(GLenum format, GLuint width, GLuint height, GLenum type)
 {
+	//glTextureStorage2D(id, 1, format, width, height);
+	//glTextureSubImage2D(id, 0, 0, 0, width, height, format, type, NULL);
 	glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, type, NULL);
 }
 
@@ -83,6 +86,10 @@ void Texture::setParams(GLenum texMinFilter, GLenum texMagFilter, GLenum wrapS, 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texMagFilter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+	//glTextureParameteri(id, GL_TEXTURE_MIN_FILTER, texMinFilter);
+	//glTextureParameteri(id, GL_TEXTURE_MAG_FILTER, texMagFilter);
+	//glTextureParameterf(id, GL_TEXTURE_WRAP_S, wrapS);
+	//glTextureParameterf(id, GL_TEXTURE_WRAP_T, wrapT);
 }
 
 // bind texture id

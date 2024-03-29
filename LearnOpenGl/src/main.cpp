@@ -61,7 +61,9 @@ double lastFrame = 0.0f; // time of last frame
 Sphere sphere(100);
 Cube cube(10);
 Lamp lamp(4);
-Model troll("troll", 2, CONST_INSTANCES);
+Model ev("ev", 2, CONST_INSTANCES);
+Model yol("yol", 2, CONST_INSTANCES);
+Model kaldirim("kaldirim", 2, CONST_INSTANCES);
 BrickWall wall;
 Gun g(1);
 CubeMap skybox;
@@ -137,8 +139,57 @@ int main() {
 
     scene.registerModel(&cube);
 
-    troll.loadModel("assets/models/lotr_troll/scene.gltf");
-    scene.registerModel(&troll);
+    ev.loadModel("assets/models/CV/ev/utku_street.gltf");
+    ev.boundingRegions.clear();
+
+    glm::vec3 solBinaMin(-104.856216, -1.868685, -21.621166);
+    glm::vec3 solBinaMax(136.939651, 89.524246, 2.686391);
+
+    BoundingRegion solBinaAABB(solBinaMin, solBinaMax);
+    ev.boundingRegions.push_back(solBinaAABB);
+
+    glm::vec3 sagBinaMin(-104.856216, 1.826021, 140.782227);
+    glm::vec3 sagBinaMax(136.939651, 89.524246, 165.089783);
+
+    BoundingRegion sagBinaAABB(sagBinaMin, sagBinaMax);
+    ev.boundingRegions.push_back(sagBinaAABB);
+
+    glm::vec3 ortaBinaMin(271.685028, -3.641843, -26.273689);
+    glm::vec3 ortaBinaMax(295.992584, 89.524246, 215.522171);
+
+    BoundingRegion ortaBinaAABB(ortaBinaMin, ortaBinaMax);
+    ev.boundingRegions.push_back(ortaBinaAABB);
+
+    scene.registerModel(&ev);
+
+    yol.loadModel("assets/models/CV/yol/utku_street.gltf");
+    yol.boundingRegions.clear();
+
+    glm::vec3 yolMin(-110.937218, -5.913838, -65.131943);
+    glm::vec3 yolMax(269.668243, -1.972113, 197.865646);
+
+    BoundingRegion yolAABB(yolMin, yolMax);
+    yol.boundingRegions.push_back(yolAABB);
+
+    scene.registerModel(&yol);
+
+    kaldirim.loadModel("assets/models/CV/kaldirim/utku_street.gltf");
+    kaldirim.boundingRegions.clear();
+    
+    glm::vec3 solKaldirimMin(-103.743050, -2.401778, -65.131943);
+    glm::vec3 solKaldirimMax(155.178009, -0.377109, 22.295204);
+
+    BoundingRegion solKaldirimAABB(solKaldirimMin, solKaldirimMax);
+    kaldirim.boundingRegions.push_back(solKaldirimAABB);
+
+    glm::vec3 sagKaldirimMin(-103.743050, -2.401778, 121.954636);
+    glm::vec3 sagKaldirimMax(155.178009, -0.377109, 209.381775);
+
+    BoundingRegion sagKaldirimAABB(sagKaldirimMin, sagKaldirimMax);
+    kaldirim.boundingRegions.push_back(sagKaldirimAABB);
+    
+
+    scene.registerModel(&kaldirim);
 
     g.init();
     scene.registerModel(&g);
@@ -202,7 +253,7 @@ int main() {
     scene.spotLights.push_back(&spotLight);
     States::activateIndex(&scene.activeSpotLights, 0);
 
-    scene.generateInstance(cube.id, glm::vec3(20.0f, 0.1f, 20.0f), 100.0f, glm::vec3(0.0f, -3.0f, 0.0f));
+    //scene.generateInstance(cube.id, glm::vec3(20.0f, 0.1f, 20.0f), 100.0f, glm::vec3(0.0f, -3.0f, 0.0f));
     glm::vec3 cubePositions[] = {
         { 1.0f, 2.0f, 1.0f },
         { -7.25f, 2.1f, 1.5f },
@@ -218,15 +269,16 @@ int main() {
         //scene.generateInstance(cube.id, glm::vec3(0.5f), 1.0f, cubePositions[i]);
     }
 
-    scene.generateInstance(sphere.id, glm::vec3(1.0f), 5.0f, glm::vec3(5.0f));
+    //scene.generateInstance(sphere.id, glm::vec3(1.0f), 5.0f, glm::vec3(5.0f));
 
     // instantiate the brickwall plane
-    scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f,
-        { 0.0f, 0.0f, 2.0f }, { -1.0f, glm::pi<float>(), 0.0f });
+    //scene.generateInstance(wall.id, glm::vec3(1.0f), 1.0f,
+        //{ 0.0f, 0.0f, 2.0f }, { -1.0f, glm::pi<float>(), 0.0f });
 
-    // generate troll
-    scene.generateInstance(troll.id, glm::vec3(0.005f), 1.0f, { 2.0, 0.0, 0.0 });
-
+    // generate street
+    scene.generateInstance(ev.id, glm::vec3(0.08f), 1.0f, { 0.0, 0.0, 0.0 });
+    scene.generateInstance(yol.id, glm::vec3(0.08f), 1.0f, { 0.0, 0.0, 0.0 });
+    scene.generateInstance(kaldirim.id, glm::vec3(0.08f), 1.0f, { 0.0, 0.0, 0.0 });
     // generate gun
     scene.generateInstance(g.id, glm::vec3(0.00338f));
 
@@ -377,9 +429,11 @@ void renderScene(Shader shadowShader) {
 void renderObjects(Shader shader, bool shadow) {
     scene.renderInstances(sphere.id, shader, (float)dt, shadow);
     scene.renderInstances(g.id, shader, (float)dt, shadow);
-    scene.renderInstances(cube.id, shader, (float)dt);
-    scene.renderInstances(wall.id, shader, (float)dt);
-    scene.renderInstances(troll.id, shader, (float)dt);
+    //scene.renderInstances(cube.id, shader, (float)dt);
+    //scene.renderInstances(wall.id, shader, (float)dt);
+    scene.renderInstances(ev.id, shader, (float)dt);
+    scene.renderInstances(kaldirim.id, shader, (float)dt);
+    scene.renderInstances(yol.id, shader, (float)dt);
 }
 
 void renderLamps(Shader shader) {
@@ -414,10 +468,10 @@ void processInput(double dt) {
 }
 
 void launchItem() {
-    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.04f), 1.0f, g.instances[0]->pos + glm::vec3(cam.cameraFront * 0.48f) + glm::vec3(cam.cameraUp * 0.006f));
+    RigidBody* rb = scene.generateInstance(sphere.id, glm::vec3(0.3f), 1.0f, g.instances[0]->pos + glm::vec3(cam.cameraFront * 0.48f) + glm::vec3(cam.cameraUp * 0.006f));
     if (rb) {
         // instance generated successfully
-        rb->transferEnergy(1000.0f, cam.cameraFront);
+        rb->transferEnergy(100.0f, cam.cameraFront);
         rb->applyAcceleration(Environment::gravitationalAcceleration);
     }
 }

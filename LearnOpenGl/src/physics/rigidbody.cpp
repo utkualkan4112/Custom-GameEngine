@@ -4,6 +4,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <iostream>
+
 // test for equivalence of two rigid bodies
 bool RigidBody::operator==(RigidBody rb)
 {
@@ -34,9 +36,12 @@ RigidBody::RigidBody(std::string modelId, glm::vec3 size, float mass, glm::vec3 
 // update position with velocity and acceleration
 void RigidBody::update(float dt, bool gun)
 {
-	pos += velocity * dt + 0.5f * acceleration * (dt * dt);
+	if (velocity != glm::vec3(0.0f) && acceleration != glm::vec3(0.0f)) {
+		pos += velocity * dt + 0.5f * acceleration * (dt * dt);
+	}
+
+
 	velocity += acceleration * dt;
-	//apllyAirFriction(dt);
 
 	// rotation
 	if (!gun) {
@@ -109,19 +114,53 @@ void RigidBody::transferEnergy(float joules, glm::vec3 direction)
 void RigidBody::handleCollision(RigidBody* inst, glm::vec3 norm)
 {
 	if (lastCollision >= COLLISION_THRESHOLD || lastCollisionID != inst->instanceId) {
-		
-		this->velocity = glm::reflect(this->velocity, glm::normalize(norm)); // register (elsatic) collision
-		lastCollision = 0.0f; // reset counter
-		if (velocity.y != 0.0f) {
-			if (velocity.y < 0) {
-				velocity.y += 1.0f;
-			}
-			else if (velocity.y > 0) {
-				velocity.y -= 1.0f;
-			}
-		}
+		if (this->modelId == "sphere") {
+			if (glm::any(glm::isnan(this->velocity)) && glm::length(inst->velocity) > 0.1f) {
+				// Get the mass and velocity of the moving sphere
+				float movingMass = inst->mass;
+				glm::vec3 movingVelocity = inst->velocity;
 
-		
+				// Get the mass of the stationary sphere
+				float stationaryMass = this->mass;
+
+				// Calculate the resulting velocity of the stationary sphere using conservation of momentum
+				glm::vec3 resultingVelocity = (2.0f * movingMass * movingVelocity) / (movingMass + stationaryMass);
+
+				// Apply the resulting velocity to the stationary sphere
+				this->velocity = resultingVelocity;
+
+				applyAcceleration(Environment::gravitationalAcceleration);
+			}
+			else {
+				// Reflect the velocity using the collision normal
+				this->velocity = glm::reflect(this->velocity, glm::normalize(norm));
+
+				// Apply friction to the velocity
+				float frictionCoefficient = 0.2f; // Adjust this value to control friction
+				glm::vec3 frictionForce = -frictionCoefficient * glm::length(this->velocity) * glm::normalize(this->velocity);
+				this->velocity += frictionForce;
+
+				// Reset counter
+				lastCollision = 0.0f;
+
+				// Check if the hit surface is perpendicular to gravity (assuming -y is the gravity direction)
+				float gravityDotProduct = glm::dot(glm::vec3(0.0f, -1.0f, 0.0f), glm::normalize(norm));
+				if (std::abs(gravityDotProduct) > 0.9f) { // Adjust the threshold as needed
+
+
+					// Check if the velocity magnitude is below a threshold
+					float velocityThreshold = 0.5f; // Adjust this value to control when the object stops
+					if (glm::length(velocity) < velocityThreshold) {
+						// Set the vertical velocity to zero to prevent the object from sinking into the ground
+						acceleration.y += 9.81f;
+
+						// Set the velocity to zero to make the object stay still
+						velocity = glm::vec3(0.0f);
+					}
+				}
+			}
+			
+		}
 	}
 	lastCollisionID = inst->instanceId;
 }

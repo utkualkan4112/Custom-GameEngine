@@ -8,6 +8,8 @@
 #include <queue>
 #include <stack>
 
+#include <glm/glm.hpp>
+
 #include "list.hpp"
 #include "states.hpp"
 #include "bounds.h"

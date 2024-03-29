@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include "../physics/environment.h"
 
 // switches for instance states
 #define INSTANCE_DEAD		(unsigned char)0b00000001

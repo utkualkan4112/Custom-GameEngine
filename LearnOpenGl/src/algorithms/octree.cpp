@@ -454,13 +454,96 @@ void Octree::node::checkCollisionsSelf(BoundingRegion obj) {
                     }
                 }
                 else {
-                    // neither haver collision mesh
-                    // coerse grain test passed (test collision between speheres)
+                    // neither have collision mesh
+                    // coarse grain test passed (test collision between different bounding volumes)
                     std::cout << "Case 4: Instance " << br.instance->instanceId
                         << "(" << br.instance->modelId << ") collides with instance "
                         << obj.instance->instanceId << "(" << obj.instance->modelId << ")" << std::endl;
-                    norm = obj.center - br.center;
-                    obj.instance->handleCollision(br.instance, norm);
+
+                    // Determine the types of bounding volumes
+                    bool isBrSphere = br.type == BoundTypes::SPHERE;
+                    bool isObjSphere = obj.type == BoundTypes::SPHERE;
+
+                    if (isBrSphere && isObjSphere) {
+                        // Sphere-Sphere collision
+                        norm = obj.center - br.center;
+                        br.instance->handleCollision(obj.instance, norm);
+                    }
+                    else if (isBrSphere && !isObjSphere) {
+                        // Sphere-AABB collision
+                        glm::vec3 closestPoint = br.center;
+                        glm::vec3 penetration;
+                        float minPenetration = std::numeric_limits<float>::max();
+                        for (int i = 0; i < 3; i++) {
+                            if (br.center[i] < obj.min[i]) {
+                                closestPoint[i] = obj.min[i];
+                                penetration[i] = obj.min[i] - br.center[i];
+                                minPenetration = std::min(minPenetration, penetration[i]);
+                            }
+                            else if (br.center[i] > obj.max[i]) {
+                                closestPoint[i] = obj.max[i];
+                                penetration[i] = br.center[i] - obj.max[i];
+                                minPenetration = std::min(minPenetration, penetration[i]);
+                            }
+                        }
+                        if (minPenetration <= br.radius) {
+                            norm = glm::normalize(br.center - closestPoint);
+                            br.instance->handleCollision(obj.instance, norm);
+                        }
+                    }
+                    else if (!isBrSphere && isObjSphere) {
+                        // AABB-Sphere collision
+                        glm::vec3 closestPoint = obj.center;
+                        glm::vec3 penetration;
+                        float minPenetration = std::numeric_limits<float>::max();
+                        for (int i = 0; i < 3; i++) {
+                            if (obj.center[i] < br.min[i]) {
+                                closestPoint[i] = br.min[i];
+                                penetration[i] = br.min[i] - obj.center[i];
+                                minPenetration = std::min(minPenetration, penetration[i]);
+                            }
+                            else if (obj.center[i] > br.max[i]) {
+                                closestPoint[i] = br.max[i];
+                                penetration[i] = obj.center[i] - br.max[i];
+                                minPenetration = std::min(minPenetration, penetration[i]);
+                            }
+                        }
+                        if (minPenetration <= obj.radius) {
+                            norm = glm::normalize(obj.center - closestPoint);
+                            obj.instance->handleCollision(br.instance, norm);
+                        }
+                    }
+                    else {
+                        // AABB-AABB collision
+                        if (br.min.x <= obj.max.x && br.max.x >= obj.min.x &&
+                            br.min.y <= obj.max.y && br.max.y >= obj.min.y &&
+                            br.min.z <= obj.max.z && br.max.z >= obj.min.z) {
+                            // Calculate the penetration depth and normal
+                            glm::vec3 penetration;
+                            if (br.max.x < obj.max.x) penetration.x = br.max.x - obj.min.x;
+                            else if (obj.max.x < br.max.x) penetration.x = obj.max.x - br.min.x;
+                            if (br.max.y < obj.max.y) penetration.y = br.max.y - obj.min.y;
+                            else if (obj.max.y < br.max.y) penetration.y = obj.max.y - br.min.y;
+                            if (br.max.z < obj.max.z) penetration.z = br.max.z - obj.min.z;
+                            else if (obj.max.z < br.max.z) penetration.z = obj.max.z - br.min.z;
+
+                            // Find the axis with the smallest penetration depth
+                            if (penetration.x < penetration.y && penetration.x < penetration.z) {
+                                norm = glm::vec3(1, 0, 0);
+                                if (br.center.x > obj.center.x) norm = -norm;
+                            }
+                            else if (penetration.y < penetration.z) {
+                                norm = glm::vec3(0, 1, 0);
+                                if (br.center.y > obj.center.y) norm = -norm;
+                            }
+                            else {
+                                norm = glm::vec3(0, 0, 1);
+                                if (br.center.z > obj.center.z) norm = -norm;
+                            }
+
+                            br.instance->handleCollision(obj.instance, norm);
+                        }
+                    }
                 }
             }
         }

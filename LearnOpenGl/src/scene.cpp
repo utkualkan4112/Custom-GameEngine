@@ -128,7 +128,7 @@ bool Scene::init()
 	/*
 		init octree
 	*/
-	octree = new Octree::node(BoundingRegion(glm::vec3(-16.0f), glm::vec3(16.0f)));
+	octree = new Octree::node(BoundingRegion(glm::vec3(-36.0f), glm::vec3(36.0f)));
 
 	/*
 		initalize freetype library

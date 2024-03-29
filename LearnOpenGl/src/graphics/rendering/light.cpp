@@ -11,7 +11,7 @@ DirLight::DirLight(glm::vec3 direction,
 	BoundingRegion br)
 	: direction(direction),
 	ambient(ambient), diffuse(diffuse), specular(specular),
-	shadowFBO(2048, 2048, GL_DEPTH_BUFFER_BIT),
+	shadowFBO(8192, 8192, GL_DEPTH_BUFFER_BIT),
 	br(br)
 {
 	// setup FBO
@@ -27,6 +27,7 @@ void DirLight::render(Shader shader, unsigned int textureIdx)
 {
 	// set depth texture
 	glActiveTexture(GL_TEXTURE0 + textureIdx);
+	//glBindTextureUnit(textureIdx, shadowFBO.textures[0].id);
 	shadowFBO.textures[0].bind();
 	shader.setInt("dirLightBuffer", textureIdx);
 }
@@ -133,6 +134,7 @@ SpotLight::SpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 up,
 void SpotLight::render(Shader shader, int idx, unsigned int textureIdx) {
 	// set depth texture
 	glActiveTexture(GL_TEXTURE0 + textureIdx);
+	//glBindTextureUnit(textureIdx, shadowFBO.textures[0].id);
 	shadowFBO.textures[0].bind();
 	shader.setInt("spotLightBuffers[" + std::to_string(idx) + "]", textureIdx);
 }
